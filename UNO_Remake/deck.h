@@ -13,6 +13,7 @@ public:
 	void shuffle();
 	Card drawRandom();
 	Deck drawBulk(int amount);
+	Card drawIndex(int index);
 	void printDeck(bool hidden = false);
 
 	std::vector<Card> cards = {};
@@ -89,6 +90,19 @@ inline Deck Deck::drawBulk(int amount)
 	return newDeck;
 }
 
+inline Card Deck::drawIndex(int index)
+{
+	if (index >= 0 && index < this->cards.size()) {
+		Card resultCard = this->cards[index];
+		this->cards.erase(this->cards.begin() + index);
+		this->cards.shrink_to_fit();
+		return resultCard;
+	}
+	
+	std::cout << "Invalid index.\n";
+	return Card();
+}
+
 inline void Deck::printDeck(bool hidden)
 {
 	for (int i = 0; i <= this->cards.size() - 1; i++) {
@@ -96,7 +110,7 @@ inline void Deck::printDeck(bool hidden)
 
 		// print the cards in a hidden format ([x, x, x, x, x...])
 		if (hidden) {
-			// print the first
+			// print the first ...
 			if (i == 0) {
 				std::cout << "[";
 			}
@@ -112,21 +126,7 @@ inline void Deck::printDeck(bool hidden)
 		else {
 			// print their index with the card name AND color (colored)
 			std::cout << std::format("{}: ", i + 1);
-			if (card.isWild) {
-				std::cout << std::format("\033[1;35m{}\033[0m\n", card.name); // wild cards in magenta
-			}
-			else if (card.color == "Red") {
-				std::cout << std::format("\033[1;31m{}\033[0m\n", card.name);
-			}
-			else if (card.color == "Yellow") {
-				std::cout << std::format("\033[1;33m{}\033[0m\n", card.name);
-			}
-			else if (card.color == "Green") {
-				std::cout << std::format("\033[1;32m{}\033[0m\n", card.name);
-			}
-			else if (card.color == "Blue") {
-				std::cout << std::format("\033[1;34m{}\033[0m\n", card.name);
-			}
+			card.printCard();
 		}
 	}
 
