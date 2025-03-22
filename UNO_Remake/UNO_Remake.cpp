@@ -3,26 +3,37 @@
 
 #include <iostream>
 #include "deck.h"
+#include "game.h"
 
 int main()
 {
     std::cout << "Hello World!\n";
 
-    Deck myDeck;
+	Game myGame;
+    while (!myGame.init()) {
+		std::cout << "Retry again in 3s...\n";
+		Sleep(3000);
+		system("cls");
+    }
+
+    myGame.play();
+
+    //Deck myDeck;
+    //myDeck.init();
 
     //printDeck(myDeck);
 
     //myDeck.shuffle();
 
-    //printDeck(myDeck);
+    //myDeck.printDeck();
 
     //Card drawedCard = myDeck.drawRandom();
 
-    myDeck.drawBulk(5);
-
-    for (Card card : myDeck.cards) {
-        myDeck.drawRandom();
-    }
+    //myDeck.drawBulk(5);
+    //
+    //for (Card card : myDeck.cards) {
+    //    myDeck.drawRandom();
+    //}
 
     //printDeck(myDeck);
 

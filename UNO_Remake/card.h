@@ -9,15 +9,11 @@ public:
 	Card(std::string name, bool isWild);
 	Card() {};
 	
-	// Card full name
-	std::string name;
-
-private:
 	// Card properties
+	std::string name;
 	std::string color;
 	std::string value;
 	bool isWild = false;
-
 };
 
 Card::Card(std::string color, std::string value)

@@ -8,23 +8,14 @@
 class Deck
 {
 public:
-	Deck();
+	Deck() {};
+	void init();
 	void shuffle();
 	Card drawRandom();
 	Deck drawBulk(int amount);
+	void printDeck(bool hidden = false);
 
 	std::vector<Card> cards = {};
-	
-	// temp function
-	void printDeck() {
-		Deck urDeck = *this;
-		std::cout << "[";
-		for (Card card : urDeck.cards) {
-			std::cout << card.name << ", ";
-		}
-
-		std::cout << "]\n\n";
-	}
 
 private:
 	// Cards Identification
@@ -39,7 +30,7 @@ private:
 	void generate();
 };
 
-Deck::Deck()
+inline void Deck::init()
 {
 	this->generate();
 	this->shuffle();
@@ -53,30 +44,93 @@ inline void Deck::shuffle()
 
 inline Card Deck::drawRandom()
 {
-	std::uniform_int_distribution<> distr(0, cards.size() - 1);
-	int randomIndex = distr(gen);
+    if (this->cards.empty()) {
+        return Card(); // Return an empty card if the deck is empty
+    }
 
-	// get the card
-	Card resultCard = this->cards[randomIndex];
+    std::uniform_int_distribution<int> distr(0, static_cast<int>(cards.size()) - 1);
+    int randomIndex = distr(gen);
 
-	// remove it from the deck
-	this->cards.erase(this->cards.begin() + randomIndex);
-	
-	return resultCard;
+    // get the card
+    Card resultCard = this->cards[randomIndex];
+
+    // remove it from the deck
+    this->cards.erase(this->cards.begin() + randomIndex);
+
+	this->cards.shrink_to_fit();
+
+    return resultCard;
 }
 
 inline Deck Deck::drawBulk(int amount)
 {
 	Deck newDeck;
-	// first, copy the cards to the new deck
-	std::copy(this->cards.begin(), this->cards.begin() + amount - 1, newDeck.cards.begin());
-	printf("Old Deck: ");
-	this->printDeck();
 
-	printf("\nNew Deck: ");
-	newDeck.printDeck();
+	// before anything, check if the deck is empty
+	if (this->cards.size() == 0) {
+		return newDeck;
+	}
 
-	return Deck();
+	// then, make sure the amount is in the correct boundaries
+	amount = std::min(amount, (int)this->cards.size());
+
+	// identify locations of the cards to be drawn
+	auto it = this->cards.begin();
+	auto end = this->cards.begin() + amount;
+
+	// copy the cards to the new deck
+	std::copy(it, end, std::back_inserter(newDeck.cards));
+	// delete them from the current deck
+	this->cards.erase(it, end);
+
+	this->cards.shrink_to_fit();
+
+	// ez
+	return newDeck;
+}
+
+inline void Deck::printDeck(bool hidden)
+{
+	for (int i = 0; i <= this->cards.size() - 1; i++) {
+		Card card = this->cards[i];
+
+		// print the cards in a hidden format ([x, x, x, x, x...])
+		if (hidden) {
+			// print the first
+			if (i == 0) {
+				std::cout << "[";
+			}
+
+			std::cout << "x" << ((i == this->cards.size() - 1) ? "" : ", ");
+
+			// ... and last bracket
+			if (i == this->cards.size() - 1) {
+				std::cout << "]\n";
+			}
+			continue;
+		}
+		else {
+			// print their index with the card name AND color (colored)
+			std::cout << std::format("{}: ", i + 1);
+			if (card.isWild) {
+				std::cout << std::format("\033[1;35m{}\033[0m\n", card.name); // wild cards in magenta
+			}
+			else if (card.color == "Red") {
+				std::cout << std::format("\033[1;31m{}\033[0m\n", card.name);
+			}
+			else if (card.color == "Yellow") {
+				std::cout << std::format("\033[1;33m{}\033[0m\n", card.name);
+			}
+			else if (card.color == "Green") {
+				std::cout << std::format("\033[1;32m{}\033[0m\n", card.name);
+			}
+			else if (card.color == "Blue") {
+				std::cout << std::format("\033[1;34m{}\033[0m\n", card.name);
+			}
+		}
+	}
+
+	std::cout << "\n";
 }
 
 void Deck::generate() {
